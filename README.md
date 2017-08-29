@@ -10,7 +10,7 @@ If you want to contribute, you are highly encouraged to do so. Please read the [
 
 For more terminal shell goodness, please also see this list's sister list [Awesome Command Line Apps](https://github.com/herrbischoff/awesome-command-line-apps).
 
-## Table of Contents
+## Contents
 
 - [Appearance](#appearance)
     - [Transparency](#transparency)
@@ -25,16 +25,18 @@ For more terminal shell goodness, please also see this list's sister list [Aweso
     - [Safari](#safari)
     - [Sketch](#sketch)
     - [Skim](#skim)
+    - [Terminal](#terminal)
     - [TextEdit](#textedit)
+    - [Virtual Studio Code](#visual-studio-code)
 - [Backup](#backup)
     - [Time Machine](#time-machine)
 - [Developer](#developer)
     - [Vim](#vim)
     - [Xcode](#xcode)
-- [Disks and Volumes](#disks-and-volumes)
-    - [Disk Images](#disk-images)
 - [Dock](#dock)
 - [Documents](#documents)
+- [Files, Disks and Volumes](#files-disks-and-volumes)
+    - [Disk Images](#disk-images)
 - [Finder](#finder)
     - [Files and Folders](#files-and-folders)
     - [Layout](#layout)
@@ -61,6 +63,7 @@ For more terminal shell goodness, please also see this list's sister list [Aweso
     - [Networking Tools](#networking-tools)
     - [SSH](#ssh)
     - [TCP/IP](#tcpip)
+    - [TFTP](#tftp)
     - [Wi-Fi](#wi-fi)
 - [Package Managers](#package-managers)
 - [Printing](#printing)
@@ -155,6 +158,29 @@ defaults write com.apple.appstore ShowDebugMenu -bool false
 
 ### Apple Remote Desktop
 
+#### Kickstart Manual Pages
+```bash
+sudo /System/Library/CoreServices/RemoteManagement/ARDAgent.app/Contents/Resources/kickstart -help
+```
+
+#### Activate And Deactivate the ARD Agent and Helper
+```bash
+# Activate And Restart the ARD Agent and Helper
+sudo /System/Library/CoreServices/RemoteManagement/ARDAgent.app/Contents/Resources/kickstart -activate -restart -agent -console
+
+# Deactivate and Stop the Remote Management Service
+sudo /System/Library/CoreServices/RemoteManagement/ARDAgent.app/Contents/Resources/kickstart -deactivate -stop 
+```
+
+#### Enable and Disable Remote Desktop Sharing
+```bash
+# Allow Access for All Users and Give All Users Full Access
+sudo /System/Library/CoreServices/RemoteManagement/ARDAgent.app/Contents/Resources/kickstart -configure -allowAccessFor -allUsers -privs -all
+
+# Disable ARD Agent and Remove Access Privileges for All Users
+sudo /System/Library/CoreServices/RemoteManagement/ARDAgent.app/Contents/Resources/kickstart -deactivate -configure -access -off
+```
+
 #### Remove Apple Remote Desktop Settings
 ```bash
 sudo rm -rf /var/db/RemoteManagement ; \
@@ -211,6 +237,7 @@ Code from: http://web.archive.org/web/20071008123746/http://www.hawkwings.net/20
 Originally by "pmbuko" with modifications by Romulo
 Updated by Brett Terpstra 2012
 Updated by Mathias Törnblom 2015 to support V3 in El Capitan and still keep backwards compatibility
+Updated by Andrei Miclaus 2017 to support V4 in Sierra
 *)
 
 tell application "Mail" to quit
@@ -218,7 +245,7 @@ set os_version to do shell script "sw_vers -productVersion"
 set mail_version to "V2"
 considering numeric strings
     if "10.10" <= os_version then set mail_version to "V3"
-    if "10.12" < os_version then set mail_version to "V4" # for osx sierra
+    if "10.12" < os_version then set mail_version to "V4"
 end considering
 
 set sizeBefore to do shell script "ls -lnah ~/Library/Mail/" & mail_version & "/MailData | grep -E 'Envelope Index$' | awk {'print $5'}"
@@ -248,6 +275,15 @@ Other options: `get source`, `get text`.
 osascript -e 'tell application "Safari" to get URL of current tab of front window'
 ```
 
+#### Use Backspace/Delete to Go Back a Page
+```bash
+# Enable
+defaults write com.apple.Safari com.apple.Safari.ContentPageGroupIdentifier.WebKit2BackspaceKeyNavigationEnabled -bool YES
+
+# Disable
+defaults write com.apple.Safari com.apple.Safari.ContentPageGroupIdentifier.WebKit2BackspaceKeyNavigationEnabled -bool NO
+```
+
 ### Sketch
 
 #### Export Compact SVGs
@@ -262,12 +298,29 @@ Removes the dialog and defaults to auto reload.
 ```bash
 defaults write -app Skim SKAutoReloadFileUpdate -boolean true
 ```
+### Terminal
+
+#### Focus Follows Mouse
+```bash
+# Enable
+defaults write com.apple.Terminal FocusFollowsMouse -string YES
+
+# Disable
+defaults write com.apple.Terminal FocusFollowsMouse -string NO
+```
 
 ### TextEdit
 
 #### Use Plain Text Mode as Default
 ```bash
 defaults write com.apple.TextEdit RichText -int 0
+```
+
+### Visual Studio Code
+
+#### Fix VSCodeVim Key Repeat
+```bash
+defaults write com.microsoft.VSCode ApplePressAndHoldEnabled -bool false
 ```
 
 
@@ -278,7 +331,7 @@ defaults write com.apple.TextEdit RichText -int 0
 #### Change Backup Interval
 This changes the interval to 30 minutes. The integer value is the time in seconds.
 ```bash
-sudo defaults write /System/Library/Launch Daemons/com.apple.backupd-auto StartInterval -int 1800
+sudo defaults write /System/Library/LaunchDaemons/com.apple.backupd-auto StartInterval -int 1800
 ```
 
 #### Local Backups
@@ -334,7 +387,102 @@ xcrun simctl delete unavailable
 ```
 
 
-## Disks and Volumes
+## Dock
+
+#### Add a Stack with Recent Applications
+```bash
+defaults write com.apple.dock persistent-others -array-add '{ "tile-data" = { "list-type" = 1; }; "tile-type" = "recents-tile"; }' && \
+killall Dock
+```
+
+#### Add a Space
+```bash
+defaults write com.apple.dock persistent-apps -array-add '{"tile-type"="spacer-tile";}' && \
+killall Dock
+```
+
+#### Auto Rearrange Spaces Based on Most Recent Use
+```bash
+# Enable (Default)
+defaults write com.apple.dock mru-spaces -bool true && \
+killall Dock
+
+# Disable
+defaults write com.apple.dock mru-spaces -bool false && \
+killall Dock
+```
+
+#### Icon Bounce
+Global setting whether Dock icons should bounce when the respective application demands your attention.
+```bash
+# Enable (Default)
+defaults write com.apple.dock no-bouncing -bool true && \
+killall Dock
+
+# Disable
+defaults write com.apple.dock no-bouncing -bool false && \
+killall Dock
+```
+
+#### Reset Dock
+```bash
+defaults delete com.apple.dock && \
+killall Dock
+```
+
+#### Resize
+Fully resize your Dock's body. To resize change the `0` value as an integer.
+```bash
+defaults write com.apple.dock tilesize -int 0 && \
+killall Dock
+```
+
+#### Scroll Gestures
+Use your touchpad or mouse scroll wheel to interact with Dock items. Allows you to use an upward scrolling gesture to open stacks. Using the same gesture on applications that are running invokes Exposé/Mission Control.
+```bash
+# Enable
+defaults write com.apple.dock scroll-to-open -bool true && \
+killall Dock
+
+# Disable (Default)
+defaults write com.apple.dock scroll-to-open -bool false && \
+killall Dock
+```
+
+#### Set Auto Show/Hide Delay
+The float number defines the show/hide delay in ms.
+```bash
+defaults write com.apple.Dock autohide-delay -float 0 && \
+killall Dock
+```
+
+#### Show Hidden App Icons
+```bash
+# Enable
+defaults write com.apple.dock showhidden -bool true && \
+killall Dock
+
+# Disable (Default)
+defaults write com.apple.dock showhidden -bool false && \
+killall Dock
+```
+
+## Documents
+
+#### Convert File to HTML
+Supported formats are plain text, rich text (rtf) and Microsoft Word (doc/docx).
+```bash
+textutil -convert html file.ext
+```
+
+
+## Files, Disks and Volumes
+
+#### Create an Empty File
+Creates an empty 10 gigabyte test file.
+```bash
+mkfile 10g /path/to/file
+```
 
 #### Disable Sudden Motion Sensor
 Leaving this turned on is useless when you're using SSDs.
@@ -420,84 +568,6 @@ hdiutil detach /dev/disk2s1
 Like the Disk Utility "Restore" function.
 ```bash
 sudo asr -restore -noverify -source /path/to/diskimage.dmg -target /Volumes/VolumeToRestoreTo
-```
-
-
-## Dock
-
-#### Add a Stack with Recent Applications
-```bash
-defaults write com.apple.dock persistent-others -array-add '{ "tile-data" = { "list-type" = 1; }; "tile-type" = "recents-tile"; }' && \
-killall Dock
-```
-
-#### Add a Space
-```bash
-defaults write com.apple.dock persistent-apps -array-add '{"tile-type"="spacer-tile";}' && \
-killall Dock
-```
-
-#### Icon Bounce
-Global setting whether Dock icons should bounce when the respective application demands your attention.
-```bash
-# Enable (Default)
-defaults write com.apple.dock no-bouncing -bool true && \
-killall Dock
-
-# Disable
-defaults write com.apple.dock no-bouncing -bool false && \
-killall Dock
-```
-
-#### Reset Dock
-```bash
-defaults delete com.apple.dock && \
-killall Dock
-```
-
-#### Resize
-Fully resize your Dock's body. To resize change the `0` value as an integer.
-```bash
-defaults write com.apple.dock tilesize -int 0 && \
-killall Dock
-```
-
-#### Scroll Gestures
-Use your touchpad or mouse scroll wheel to interact with Dock items. Allows you to use an upward scrolling gesture to open stacks. Using the same gesture on applications that are running invokes Exposé/Mission Control.
-```bash
-# Enable
-defaults write com.apple.dock scroll-to-open -bool true && \
-killall Dock
-
-# Disable (Default)
-defaults write com.apple.dock scroll-to-open -bool false && \
-killall Dock
-```
-
-#### Set Auto Show/Hide Delay
-The float number defines the show/hide delay in ms.
-```bash
-defaults write com.apple.Dock autohide-delay -float 0 && \
-killall Dock
-```
-
-#### Show Hidden App Icons
-```bash
-# Enable
-defaults write com.apple.dock showhidden -bool true && \
-killall Dock
-
-# Disable
-defaults write com.apple.dock showhidden -bool false && \
-killall Dock
-```
-
-## Documents
-
-#### Convert File to HTML
-Supported formats are plain text, rich text (rtf) and Microsoft Word (doc/docx).
-```bash
-textutil -convert html file.ext
 ```
 
 
@@ -1008,7 +1078,6 @@ sudo launchctl load -w /System/Library/LaunchDaemons/ssh.plist
 sudo launchctl unload -w /System/Library/LaunchDaemons/ssh.plist
 ```
 
-
 ### TCP/IP
 
 #### Show Application Using a Certain Port
@@ -1020,6 +1089,15 @@ sudo lsof -i :80
 #### Show External IP Address
 ```bash
 dig +short myip.opendns.com @resolver1.opendns.com
+```
+
+### TFTP
+
+#### Start Native TFTP Daemon
+Files will be served from `/private/tftpboot`.
+```bash
+sudo launchctl load -F /System/Library/LaunchDaemons/tftp.plist && \
+sudo launchctl start com.apple.tftpd
 ```
 
 ### Wi-Fi
@@ -1610,7 +1688,7 @@ tput bel
 ### Shells
 
 #### Bash
-Install the latest version and set as current users' default shell:
+Install the latest version and set as current user's default shell:
 ```bash
 brew install bash && \
 echo $(brew --prefix)/bin/bash | sudo tee -a /etc/shells && \
@@ -1621,7 +1699,7 @@ chsh -s $(brew --prefix)/bin/bash
 - [Bash-it](https://github.com/Bash-it/bash-it) - Community Bash framework, like Oh My Zsh for Bash.
 
 #### fish
-Install the latest version and set as current users' default shell:
+Install the latest version and set as current user's default shell:
 ```bash
 brew install fish && \
 echo $(brew --prefix)/bin/fish | sudo tee -a /etc/shells && \
@@ -1635,7 +1713,7 @@ shell for OS X, Linux, and the rest of the family.
 - [Installation & Configuration Tutorial](https://github.com/ellerbrock/fish-shell-setup-osx) - How to Setup Fish Shell with Fisherman, Powerline Fonts, iTerm2 and Budspencer Theme on OS X.
 
 #### Zsh
-Install the latest version and set as current users' default shell:
+Install the latest version and set as current user's default shell:
 ```bash
 brew install zsh && \
 sudo sh -c 'echo $(brew --prefix)/bin/zsh >> /etc/shells' && \
