@@ -1,14 +1,22 @@
-<h1><img src="https://cdn.rawgit.com/herrbischoff/awesome-osx-command-line/master/assets/logo.svg" alt="Awesome OS X Command Line" width="600"></h1>
+<h1><img src="https://cdn.rawgit.com/herrbischoff/awesome-macos-command-line/cab824f0/assets/logo.svg" alt="Awesome macOS Command Line" width="600"></h1>
 
 > A curated list of shell commands and tools specific to OS X.
 >
 > _“You don’t have to know everything. You simply need to know where to find it when necessary.” (John Brunner)_
 
-[![Awesome](https://cdn.rawgit.com/sindresorhus/awesome/d7305f38d29fed78fa85652e3a63e154dd8e8829/media/badge.svg)](https://github.com/sindresorhus/awesome) [![Build Status](https://travis-ci.org/herrbischoff/awesome-osx-command-line.svg?branch=master)](https://travis-ci.org/herrbischoff/awesome-osx-command-line)
+[![Awesome](https://cdn.rawgit.com/sindresorhus/awesome/d7305f38d29fed78fa85652e3a63e154dd8e8829/media/badge.svg)](https://github.com/sindresorhus/awesome) [![Build Status](https://travis-ci.org/herrbischoff/awesome-macos-command-line.svg?branch=master)](https://travis-ci.org/herrbischoff/awesome-macos-command-line)
 
 If you want to contribute, you are highly encouraged to do so. Please read the [contribution guidelines](contributing.md).
 
 For more terminal shell goodness, please also see this list's sister list [Awesome Command Line Apps](https://github.com/herrbischoff/awesome-command-line-apps).
+
+
+## Caffeinating
+
+When you find something helpful in here, you could buy me a coffee. I spend a lot of time and effort on curating this list. Keeping me properly caffeinated accelerates things. And it would really make my day. Kindness of strangers and all that. If you can't or won't, no hard feelings. It's available completely free for a reason. Still, it would be awesome.
+
+<a href="https://www.buymeacoffee.com/Oi5LPJ4lr" target="_blank"><img src="https://bmc-cdn.nyc3.digitaloceanspaces.com/BMC-button-images/custom_images/orange_img.png" alt="Buy Me A Coffee" style="height: auto !important;width: auto !important;" ></a>
+
 
 ## Contents
 
@@ -27,7 +35,7 @@ For more terminal shell goodness, please also see this list's sister list [Aweso
     - [Skim](#skim)
     - [Terminal](#terminal)
     - [TextEdit](#textedit)
-    - [Virtual Studio Code](#visual-studio-code)
+    - [Visual Studio Code](#visual-studio-code)
 - [Backup](#backup)
     - [Time Machine](#time-machine)
 - [Developer](#developer)
@@ -36,8 +44,10 @@ For more terminal shell goodness, please also see this list's sister list [Aweso
 - [Dock](#dock)
 - [Documents](#documents)
 - [Files, Disks and Volumes](#files-disks-and-volumes)
+    - [APFS](#apfs)
     - [Disk Images](#disk-images)
 - [Finder](#finder)
+    - [Desktop](#desktop)
     - [Files and Folders](#files-and-folders)
     - [Layout](#layout)
     - [Metadata Files](#metadata-files)
@@ -46,11 +56,13 @@ For more terminal shell goodness, please also see this list's sister list [Aweso
 - [Functions](#functions)
 - [Hardware](#hardware)
     - [Bluetooth](#bluetooth)
+    - [Harddisks](#harddisks)
     - [Hardware Information](#hardware-information)
     - [Infrared Receiver](#infrared-receiver)
     - [Power Management](#power-management)
 - [Input Devices](#input-devices)
     - [Keyboard](#keyboard)
+- [Launchpad](#launchpad)
 - [Media](#media)
     - [Audio](#audio)
     - [Video](#video)
@@ -95,15 +107,19 @@ For more terminal shell goodness, please also see this list's sister list [Aweso
     - [Remote Apple Events](#remote-apple-events)
     - [Root User](#root-user)
     - [Safe Mode Boot](#safe-mode-boot)
+    - [Save Dialogs](#save-dialogs)
     - [Screenshots](#screenshots)
     - [Software Installation](#software-installation)
     - [Software Update](#software-update)
+    - [Software Version](#software-version)
     - [Spotlight](#spotlight)
     - [System Integrity Protection](#system-integrity-protection)
 - [Terminal](#terminal)
     - [Alternative Terminals](#alternative-terminals)
     - [Shells](#shells)
     - [Terminal Fonts](#terminal-fonts)
+- [Glossary](#glossary)
+    - [Mac OS X, OS X, and macOS Version Information](#mac-os-x-os-x-and-macos-version-information)
 
 
 ## Appearance
@@ -147,6 +163,7 @@ mdfind kMDItemAppStoreHasReceipt=1
 ```
 
 #### Show Debug Menu
+Works up to Yosemite.
 ```bash
 # Enable
 defaults write com.apple.appstore ShowDebugMenu -bool true
@@ -169,7 +186,7 @@ sudo /System/Library/CoreServices/RemoteManagement/ARDAgent.app/Contents/Resourc
 sudo /System/Library/CoreServices/RemoteManagement/ARDAgent.app/Contents/Resources/kickstart -activate -restart -agent -console
 
 # Deactivate and Stop the Remote Management Service
-sudo /System/Library/CoreServices/RemoteManagement/ARDAgent.app/Contents/Resources/kickstart -deactivate -stop 
+sudo /System/Library/CoreServices/RemoteManagement/ARDAgent.app/Contents/Resources/kickstart -deactivate -stop
 ```
 
 #### Enable and Disable Remote Desktop Sharing
@@ -212,12 +229,18 @@ defaults write com.apple.addressbook ABShowDebugMenu -bool false
 ### iTunes
 
 #### Keyboard Media Keys
+This works up to Yosemite. System Integrity Protection was introduced in El Capitan which prevents system Launch Agents from being unloaded.
 ```bash
 # Stop Responding to Key Presses
 launchctl unload -w /System/Library/LaunchAgents/com.apple.rcd.plist
 
 # Respond to Key Presses (Default)
 launchctl load -w /System/Library/LaunchAgents/com.apple.rcd.plist
+```
+
+From El Capitan onwards, you can either disable SIP or resort to a kind of hack, which will make iTunes inaccessible to any user, effectively preventing it from starting itself or its helpers. Be aware that for all intents and purposes this will trash your iTunes installation and may conflict with OS updates down the road.
+```bash
+sudo chmod 0000 /Applications/iTunes.app
 ```
 
 ### Mail
@@ -245,7 +268,9 @@ set os_version to do shell script "sw_vers -productVersion"
 set mail_version to "V2"
 considering numeric strings
     if "10.10" <= os_version then set mail_version to "V3"
-    if "10.12" < os_version then set mail_version to "V4"
+    if "10.12" <= os_version then set mail_version to "V4"
+    if "10.13" <= os_version then set mail_version to "V5"
+    if "10.14" <= os_version then set mail_version to "V6"
 end considering
 
 set sizeBefore to do shell script "ls -lnah ~/Library/Mail/" & mail_version & "/MailData | grep -E 'Envelope Index$' | awk {'print $5'}"
@@ -259,6 +284,14 @@ tell application "Mail" to activate
 ```
 
 ### Safari
+
+#### Change Default Fonts
+```bash
+defaults write com.apple.Safari com.apple.Safari.ContentPageGroupIdentifier.WebKit2StandardFontFamily Georgia
+defaults write com.apple.Safari com.apple.Safari.ContentPageGroupIdentifier.WebKit2DefaultFontSize 16
+defaults write com.apple.Safari com.apple.Safari.ContentPageGroupIdentifier.WebKit2FixedFontFamily Menlo
+defaults write com.apple.Safari com.apple.Safari.ContentPageGroupIdentifier.WebKit2DefaultFixedFontSize 14
+```
 
 #### Enable Develop Menu and Web Inspector
 ```bash
@@ -323,7 +356,6 @@ defaults write com.apple.TextEdit RichText -int 0
 defaults write com.microsoft.VSCode ApplePressAndHoldEnabled -bool false
 ```
 
-
 ## Backup
 
 ### Time Machine
@@ -347,9 +379,46 @@ sudo tmutil enablelocal
 sudo tmutil disablelocal
 ```
 
+Since High Sierra, you cannot disable local snapshots. Time Machine now always creates a local APFS snapshot and uses that snapshot as the data source to create a regular backup, rather than using the live disk as the source, as is the case with HFS formatted disks.
+
 #### Prevent Time Machine from Prompting to Use New Hard Drives as Backup Volume
 ```bash
 sudo defaults write /Library/Preferences/com.apple.TimeMachine DoNotOfferNewDisksForBackup -bool true
+```
+
+#### Show Time Machine Logs
+This little script will output the last 12 hours of Time Machine activity followed by live activity.
+```bash
+#!/bin/sh
+
+filter='processImagePath contains "backupd" and subsystem beginswith "com.apple.TimeMachine"'
+
+# show the last 12 hours
+start="$(date -j -v-12H +'%Y-%m-%d %H:%M:%S')"
+
+echo ""
+echo "[History (from $start)]"
+echo ""
+
+log show --style syslog --info --start "$start" --predicate "$filter"
+
+echo ""
+echo "[Following]"
+echo ""
+
+log stream --style syslog --info --predicate "$filter"
+```
+
+#### Toggle Backup While on Battery
+```bash
+# Status
+sudo defaults read /Library/Preferences/com.apple.TimeMachine RequiresACPower
+
+# Enable (Default)
+sudo defaults write /Library/Preferences/com.apple.TimeMachine RequiresACPower -bool true
+
+# Disable
+sudo defaults write /Library/Preferences/com.apple.TimeMachine RequiresACPower -bool false
 ```
 
 #### Verify Backup
@@ -365,13 +434,13 @@ sudo tmutil verifychecksums /path/to/backup
 #### Compile Sane Vim
 Compiling MacVim via Homebrew with all bells and whistles, including overriding system Vim.
 ```bash
-brew install macvim --HEAD --with-cscope --with-lua --with-override-system-vim --with-luajit --with-python
+brew install macvim --HEAD
 ```
 
 #### Neovim
-Install the development version of this modern Vim drop-in alternative via Homebrew.
+Install the modern Vim drop-in alternative via Homebrew.
 ```bash
-brew install neovim/neovim/neovim
+brew install neovim
 ```
 
 ### Xcode
@@ -395,9 +464,21 @@ defaults write com.apple.dock persistent-others -array-add '{ "tile-data" = { "l
 killall Dock
 ```
 
+#### Add a Nameless Stack Folder and Small Spacer
+```bash
+defaults write com.apple.dock persistent-others -array-add '{ "tile-data" = {}; "tile-type"="small-spacer-tile"; }' && \
+killall Dock
+```
+
 #### Add a Space
 ```bash
 defaults write com.apple.dock persistent-apps -array-add '{"tile-type"="spacer-tile";}' && \
+killall Dock
+```
+
+#### Add a Small Space
+```bash
+defaults write com.apple.dock persistent-apps -array-add '{"tile-type"="small-spacer-tile";}' && \
 killall Dock
 ```
 
@@ -412,6 +493,18 @@ defaults write com.apple.dock mru-spaces -bool false && \
 killall Dock
 ```
 
+#### Autohide
+
+``` bash
+# Enable
+defaults write com.apple.dock autohide -bool true && \
+killall Dock
+
+# Disable (Default)
+defaults write com.apple.dock autohide -bool false && \
+killall Dock
+```
+
 #### Icon Bounce
 Global setting whether Dock icons should bounce when the respective application demands your attention.
 ```bash
@@ -421,6 +514,17 @@ killall Dock
 
 # Disable
 defaults write com.apple.dock no-bouncing -bool false && \
+killall Dock
+```
+
+#### Lock the Dock Size
+```bash
+# Enable
+defaults write com.apple.Dock size-immutable -bool yes && \
+killall Dock
+
+# Disable (Default)
+defaults write com.apple.Dock size-immutable -bool no && \
 killall Dock
 ```
 
@@ -452,7 +556,8 @@ killall Dock
 #### Set Auto Show/Hide Delay
 The float number defines the show/hide delay in ms.
 ```bash
-defaults write com.apple.Dock autohide-delay -float 0 && \
+defaults write com.apple.dock autohide-time-modifier -float 0.4 && \
+defaults write com.apple.dock autohide-delay -float 0 && \
 killall Dock
 ```
 
@@ -466,6 +571,31 @@ killall Dock
 defaults write com.apple.dock showhidden -bool false && \
 killall Dock
 ```
+
+#### Show Only Active Applications
+```bash
+# Enable
+defaults write com.apple.dock static-only -bool true && \
+killall Dock
+
+# Disable (Default)
+defaults write com.apple.dock static-only -bool false && \
+killall Dock
+```
+
+#### Single App Mode
+When clicking an application icon in the Dock, the respective windows will come
+to the front, but all other application windows will be hidden.
+```bash
+# Enable
+defaults write com.apple.dock single-app -bool true && \
+killall Dock
+
+# Disable (Default)
+defaults write com.apple.dock single-app -bool false && \
+killall Dock
+```
+
 
 ## Documents
 
@@ -505,7 +635,11 @@ sudo diskutil repairPermissions /
 
 #### Set Boot Volume
 ```bash
+# Up to Yosemite
 bless --mount "/path/to/mounted/volume" --setBoot
+
+# From El Capitan
+sudo systemsetup -setstartupdisk /System/Library/CoreServices
 ```
 
 #### Show All Attached Disks and Partitions
@@ -517,6 +651,41 @@ diskutil list
 A continuous stream of file system access info.
 ```bash
 sudo fs_usage
+```
+### APFS
+
+Available since High Sierra. There is no central utility and usage is inconsistent as most functionality is rolled into `tmutil`.
+
+#### Convert Volume from HFS+ to APFS
+```bash
+/System/Library/Filesystems/apfs.fs/Contents/Resources/hfs_convert /path/to/file/system
+```
+
+#### Create New APFS Filesystem
+```bash
+/System/Library/Filesystems/apfs.fs/Contents/Resources/newfs_apfs /path/to/device
+```
+
+#### Create Snapshot
+```bash
+tmutil localsnapshot
+```
+
+#### Delete Snapshot
+```bash
+tmutil deletelocalsnapshots com.apple.TimeMachine.2018-01-26-044042
+````
+
+#### List Snapshots
+```bash
+tmutil listlocalsnapshots /
+```
+
+#### Mount Snapshot
+Snapshots are read-only.
+```bash
+mkdir ~/mnt
+/System/Library/Filesystems/apfs.fs/Contents/Resources/mount_apfs -s com.apple.TimeMachine.2018-01-26-044042 / ~/mnt
 ```
 
 ### Disk Images
@@ -572,6 +741,56 @@ sudo asr -restore -noverify -source /path/to/diskimage.dmg -target /Volumes/Volu
 
 
 ## Finder
+
+### Desktop
+
+#### Show External Media
+External HDs, thumb drives, etc.
+```bash
+# Enable
+defaults write com.apple.finder ShowExternalHardDrivesOnDesktop -bool true && \
+killall Finder
+
+# Disable (Default)
+defaults write com.apple.finder ShowExternalHardDrivesOnDesktop -bool false && \
+killall Finder
+```
+
+#### Show Internal Media
+Built-in HDs or SSDs.
+```bash
+# Enable
+defaults write com.apple.finder ShowHardDrivesOnDesktop -bool true && \
+killall Finder
+
+# Disable (Default)
+defaults write com.apple.finder ShowHardDrivesOnDesktop -bool false && \
+killall Finder
+```
+
+#### Show Removable Media
+CDs, DVDs, iPods, etc.
+```bash
+# Enable
+defaults write com.apple.finder ShowRemovableMediaOnDesktop -bool true && \
+killall Finder
+
+# Disable (Default)
+defaults write com.apple.finder ShowRemovableMediaOnDesktop -bool false && \
+killall Finder
+```
+
+#### Show Network Volumes
+AFP, SMB, NFS, WebDAV, etc.
+```bash
+# Enable
+defaults write com.apple.finder ShowMountedServersOnDesktop -bool true && \
+killall Finder
+
+# Disable (Default)
+defaults write com.apple.finder ShowMountedServersOnDesktop -bool false && \
+killall Finder
+```
 
 ### Files and Folders
 
@@ -786,6 +1005,10 @@ From Sierra onward, they are included in Terminal.app.
 cp -v /Applications/Utilities/Terminal.app/Contents/Resources/Fonts/SFMono-* ~/Library/Fonts
 ```
 
+Starting in Catalina, the Utilities apps (including Terminal.app) are now found in the `/System` folder.
+```bash
+cp -v /System/Applications/Utilities/Terminal.app/Contents/Resources/Fonts/SFMono-* ~/Library/Fonts
+```
 
 ## Functions
 
@@ -806,6 +1029,14 @@ sudo defaults write /Library/Preferences/com.apple.Bluetooth ControllerPowerStat
 # Disable
 sudo defaults write /Library/Preferences/com.apple.Bluetooth ControllerPowerState -int 0 && \
 sudo killall -HUP blued
+```
+
+### Harddisks
+
+#### Force Enable Trim
+Enable Trim for non-Apple SSDs. This command is available since Yosemite.
+```bash
+forcetrim
 ```
 
 ### Hardware Information
@@ -951,6 +1182,20 @@ Sets a very fast repeat rate, adjust to taste.
 defaults write -g KeyRepeat -int 0.02
 ```
 
+## Launchpad
+
+#### Reset Launchpad Layout
+You need to restart `Dock` because Launchpad is tied to it.
+```bash
+# Up to Yosemite
+rm ~/Library/Application\ Support/Dock/*.db && \
+killall Dock
+
+# From El Capitan
+defaults write com.apple.dock ResetLaunchPad -bool true && \
+killall Dock
+```
+
 ## Media
 
 ### Audio
@@ -1055,6 +1300,11 @@ scselect
 scselect LocationNameFromStatus
 ```
 
+#### Set Static IP Address
+```bash
+networksetup -setmanual "Ethernet" 192.168.2.100 255.255.255.0 192.168.2.1
+```
+
 ### Networking Tools
 
 #### Ping a Host to See Whether It’s Available
@@ -1068,6 +1318,22 @@ traceroute github.com
 ```
 
 ### SSH
+
+#### Permanently Add Private Key Passphrase to SSH Agent
+> Prior to macOS Sierra, ssh would present a dialog asking for your passphrase and would offer the option to store it into the keychain. This UI was deprecated some time ago and has been removed.
+>
+> Instead, a new UseKeychain option was introduced in macOS Sierra allowing users to specify whether they would like for the passphrase to be stored in the keychain. This option was enabled by default on macOS Sierra, which caused all passphrases to be stored in the keychain.
+>
+> This was not the intended default behavior, so this has been changed in macOS 10.12.2. ([Source](https://developer.apple.com/library/archive/technotes/tn2449/_index.html))
+```bash
+ssh-add -K /path/to/private_key
+```
+Then add to `~/.ssh/config`:
+```bash
+Host server.example.com
+    IdentityFile /path/to/private_key
+    UseKeychain yes
+```
 
 #### Remote Login
 ```bash
@@ -1087,8 +1353,19 @@ sudo lsof -i :80
 ```
 
 #### Show External IP Address
+Works if your ISP doesn't replace DNS requests (which it shouldn't).
 ```bash
 dig +short myip.opendns.com @resolver1.opendns.com
+```
+Alternative that works on all networks.
+```bash
+curl -s https://api.ipify.org && echo
+```
+
+#### Show Network Interface Information
+Undocumented flag of the `scutil` command.
+```bash
+scutil --nwi
 ```
 
 ### TFTP
@@ -1149,6 +1426,14 @@ networksetup -setairportpower en0 on
 - [Homebrew](https://brew.sh) - The missing package manager for OS X. The most popular choice.
 - [MacPorts](https://www.macports.org) - Compile, install and upgrade either command-line, X11 or Aqua based open-source software. Very clean, it's what I use.
 
+### Homebrew
+
+#### Full Uninstall
+
+```bash
+ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/uninstall)"
+```
+
 
 ## Printing
 
@@ -1203,6 +1488,7 @@ spctl --remove /path/to/Application.app
 ```
 
 #### Manage Gatekeeper
+Especially helpful with the annoying Catalina system popup blocking execution of non-signed apps.
 ```bash
 # Status
 spctl --status
@@ -1218,15 +1504,21 @@ sudo spctl --master-disable
 
 #### Generate Secure Password and Copy to Clipboard
 ```bash
-LC_ALL=C tr -dc "[:alpha:][:alnum:]" < /dev/urandom | head -c 20 | pbcopy
+LC_ALL=C tr -dc "[:alnum:]" < /dev/urandom | head -c 20 | pbcopy
 ```
 
 ### Physical Access
 
 #### Launch Screen Saver
+
 ```bash
+# Up to Sierra
 open /System/Library/Frameworks/ScreenSaver.framework/Versions/A/Resources/ScreenSaverEngine.app
+
+# From High Sierra
+/System/Library/CoreServices/ScreenSaverEngine.app/Contents/MacOS/ScreenSaverEngine
 ```
+
 
 #### Lock Screen
 ```bash
@@ -1407,7 +1699,7 @@ sudo fdesetup status
 sudo fdesetup enable
 
 # Disable (Default)
-sudo fdestatus disable
+sudo fdesetup disable
 ```
 
 ### Information/Reports
@@ -1421,15 +1713,25 @@ sudo sysdiagnose -f ~/Desktop/
 
 #### Create Bootable Installer
 ```bash
+# Mojave
+sudo /Applications/Install\ macOS\ Mojave.app/Contents/Resources/createinstallmedia --volume /Volumes/USB --nointeraction --downloadassets
+
+# High Sierra
+sudo /Applications/Install\ macOS\ High\ Sierra.app/Contents/Resources/createinstallmedia --volume /Volumes/USB --applicationpath /Applications/Install\ macOS\ High\ Sierra.app
+
+# Sierra
+sudo /Applications/Install\ macOS\ Sierra.app/Contents/Resources/createinstallmedia --volume /Volumes/USB --applicationpath /Applications/Install\ macOS\ Sierra.app
+
 # El Capitan
-sudo /Applications/Install\ OS\ X\ El\ Capitan.app/Contents/Resources/createinstallmedia --volume /Volumes/MyVolume --applicationpath /Applications/Install\ OS\ X\ El\ Capitan.app
+sudo /Applications/Install\ OS\ X\ El\ Capitan.app/Contents/Resources/createinstallmedia --volume /Volumes/USB --applicationpath /Applications/Install\ OS\ X\ El\ Capitan.app
 
 # Yosemite
-sudo /Applications/Install\ OS\ X\ Yosemite.app/Contents/Resources/createinstallmedia --volume /Volumes/MyVolume --applicationpath /Applications/Install\ OS\ X\ Yosemite.app
-
-# Mavericks
-sudo /Applications/Install\ OS\ X\ Mavericks.app/Contents/Resources/createinstallmedia --volume /Volumes/MyVolume --applicationpath /Applications/Install\ OS\ X\ Mavericks.app
+sudo /Applications/Install\ OS\ X\ Yosemite.app/Contents/Resources/createinstallmedia --volume /Volumes/USB --applicationpath /Applications/Install\ OS\ X\ Yosemite.app
 ```
+
+* For confirmation before erasing the drive, remove `–-nointeraction` from the command.
+* The optional `–-downloadassets` flag is new in Mojave. It downloads assets which may be required during installation, like updates.
+* The `–-applicationpath` flag is deprecated since Mojave and will throw an error if used.
 
 ### Kernel Extensions
 
@@ -1538,6 +1840,12 @@ sudo nvram boot-args="-x"
 sudo nvram boot-args=""
 ```
 
+### Save Dialogs
+Significantly improve the now rather slow animation in save dialogs.
+```bash
+defaults write NSGlobalDomain NSWindowResizeTime .001
+```
+
 ### Screenshots
 
 #### Take Delayed Screenshot
@@ -1581,6 +1889,12 @@ installer -pkg /path/to/installer.pkg -target /
 
 ### Software Update
 
+#### Ignore Specific Software Update
+The identifier can be found via `softwareupdate --list`. In the example below, being on Mojave, will ignore all update prompts to Catalina, since the latter removes 32-bit support.
+```bash
+sudo /usr/sbin/softwareupdate --ignore "macOS Catalina"
+```
+
 #### Install All Available Software Updates
 ```bash
 sudo softwareupdate -ia
@@ -1594,7 +1908,7 @@ defaults write com.apple.SoftwareUpdate ScheduleFrequency -int 1
 
 #### Show Available Software Updates
 ```bash
-sudo softwareupdate -l
+sudo softwareupdate --list
 ```
 
 #### Set Software Update Server
@@ -1605,6 +1919,13 @@ sudo defaults write /Library/Preferences/com.apple.SoftwareUpdate CatalogURL htt
 
 # Reset to Apple SUS
 sudo defaults delete /Library/Preferences/com.apple.SoftwareUpdate CatalogURL
+```
+
+### Software Version
+
+#### Show System Software Version
+```bash
+sw_vers -productVersion
 ```
 
 ### Spotlight
@@ -1672,7 +1993,6 @@ sudo systemsetup setusingnetworktime off
 ```
 
 
-
 ## Terminal
 
 #### Ring Terminal Bell
@@ -1683,7 +2003,9 @@ tput bel
 
 ### Alternative Terminals
 
+- [Alacritty](https://github.com/jwilm/alacritty) - Cross-platform, GPU-accelerated terminal emulator.
 - [iTerm2](https://iterm2.com) - A better Terminal.app.
+- [kitty](https://sw.kovidgoyal.net/kitty/) - Modern, GPU-accelerated terminal emulator.
 
 ### Shells
 
@@ -1708,7 +2030,6 @@ chsh -s $(brew --prefix)/bin/fish
 
 - [Homepage](http://fishshell.com) - A smart and user-friendly command line
 shell for OS X, Linux, and the rest of the family.
-- [Fisherman](https://fisherman.github.io/) - A blazing fast, modern plugin manager for Fish.
 - [The Fishshell Framework](https://github.com/oh-my-fish/oh-my-fish) - Provides core infrastructure to allow you to install packages which extend or modify the look of your shell.
 - [Installation & Configuration Tutorial](https://github.com/ellerbrock/fish-shell-setup-osx) - How to Setup Fish Shell with Fisherman, Powerline Fonts, iTerm2 and Budspencer Theme on OS X.
 
@@ -1737,6 +2058,34 @@ chsh -s $(brew --prefix)/bin/zsh
 - [Operator Mono](https://www.typography.com/fonts/operator/overview/) - A surprisingly usable alternative take on a monospace font (commercial).
 - [Powerline Fonts](https://github.com/powerline/fonts) - Repo of patched fonts for the Powerline plugin.
 - [Source Code Pro](https://adobe-fonts.github.io/source-code-pro/) - A monospaced font family for user interfaces and coding environments.
+
+
+## Glossary
+
+### Mac OS X, OS X, and macOS Version Information
+
+Version                    | Codename           | Release Date       | Most Recent Version
+-------------------------- | ------------------ | ------------------ | -------------------------------------
+Rhapsody Developer Release | Grail1Z4 / Titan1U | August 31, 1997    | DR2 (May 14, 1998)
+Mac OS X Server 1.0        | Hera               | March 16, 1999     | 1.2v3 (October 27, 2000)
+Mac OS X Developer Preview | n/a                | March 16, 1999     | DP4 (April 5, 2000)
+Mac OS X Public Beta       | Kodiak             | September 13, 2000 | n/a
+Mac OS X 10.0              | Cheetah            | March 24, 2001     | 10.0.4 (June 22, 2001)
+Mac OS X 10.1              | Puma               | September 25, 2001 | 10.1.5 (June 6, 2002)
+Mac OS X 10.2              | Jaguar             | August 24, 2002    | 10.2.8 (October 3, 2003)
+Mac OS X 10.3              | Panther            | October 24, 2003   | 10.3.9 (April 15, 2005)
+Mac OS X 10.4              | Tiger              | April 29, 2005     | 10.4.11 (November 14, 2007)
+Mac OS X 10.5              | Leopard            | October 26, 2007   | 10.5.8 (August 5, 2009)
+Mac OS X 10.6              | Snow Leopard       | August 28, 2009    | 10.6.8 v1.1 (July 25, 2011)
+Mac OS X 10.7              | Lion               | July 20, 2011      | 10.7.5 (September 19, 2012)
+OS X 10.8                  | Mountain Lion      | July 25, 2012      | 10.8.5 (12F45) (October 3, 2013)
+OS X 10.9                  | Mavericks          | October 22, 2013   | 10.9.5 (13F1112) (September 18, 2014)
+OS X 10.10                 | Yosemite           | October 16, 2014   | 10.10.5 (14F27) (August 13, 2015)
+OS X 10.11                 | El Capitan         | September 30, 2015 | 10.11.6 (15G31) (July 18, 2016)
+macOS 10.12                | Sierra             | September 20, 2016 | 10.12.6 (16G29) (July 19, 2017)
+macOS 10.13                | High Sierra        | September 25, 2017 | 10.13.6 (17G65) (July 9, 2018)
+macOS 10.14                | Mojave             | September 24, 2018 | 10.14 (18A391) (September 24, 2018)
+macOS 10.15                | Catalina           | October 7, 2019    | 10.15.0 (19A602) (October 15, 2019)
 
 
 ## License
